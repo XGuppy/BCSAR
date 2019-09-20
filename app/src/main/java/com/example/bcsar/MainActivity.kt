@@ -1,5 +1,6 @@
 package com.example.bcsar
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
@@ -9,6 +10,8 @@ import android.hardware.SensorManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
 
@@ -42,6 +45,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onSensorChanged(event: SensorEvent?) {
         if(event == null)
         {
@@ -71,5 +75,19 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onPause() {
         super.onPause()
         mSensorManager.unregisterListener(this)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if(item.itemId == R.id.settingsAction)
+        {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+        }
+        return true
     }
 }
