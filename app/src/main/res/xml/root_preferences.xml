@@ -1,0 +1,27 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/mode_header">
+
+        <ListPreference
+            app:defaultValue="Нормальный"
+            app:entries="@array/modeEntries"
+            app:entryValues="@array/modes"
+            app:key="modes"
+            app:title="@string/mode_message"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/invers_header">
+
+        <SwitchPreferenceCompat
+            app:key="inversX"
+            app:title="@string/inversX_message" />
+
+        <SwitchPreferenceCompat
+            app:key="inversY"
+            app:title="@string/inversY_message" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

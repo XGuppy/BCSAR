@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">BCSAR</string>
+    <string name="action_settings">Настройки</string>
+    <string name="label_spinner_text">Выберите устройство</string>
+    <string name="round_button_text_on">Подключиться</string>
+    <string name="round_button_text_off">Отключиться</string>
+    <string name="title_activity_settings">Настройки</string>
+
+    <!-- Preference Titles -->
+    <string name="invers_header">Инверсия осей</string>
+    <string name="mode_header">Режим работы</string>
+
+    <!-- Messages Preferences -->
+    <string name="inversX_message">Инверсия по оси X</string>
+    <string name="inversY_message">Инверсия по оси Y</string>
+    <string name="mode_message">Режим работы</string>
 </resources>

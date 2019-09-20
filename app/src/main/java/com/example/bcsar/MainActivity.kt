@@ -1,6 +1,5 @@
 package com.example.bcsar
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -27,7 +26,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         mTextAccel = findViewById(R.id.Test2)
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onSensorChanged(event: SensorEvent?) {
         if(event == null)
         {

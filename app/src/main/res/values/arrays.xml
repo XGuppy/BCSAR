@@ -1,0 +1,16 @@
+<resources>
+    <!-- Reply Preference -->
+    <string-array name="modeEntries">
+        <item>Интерфейс</item>
+        <item>Нормальный</item>
+        <item>Игра</item>
+        <item>Убер</item>
+    </string-array>
+
+    <string-array name="modes">
+        <item>SENSOR_DELAY_UI</item>
+        <item>SENSOR_DELAY_NORMAL</item>
+        <item>SENSOR_DELAY_GAME</item>
+        <item>SENSOR_DELAY_FASTEST</item>
+    </string-array>
+</resources>
