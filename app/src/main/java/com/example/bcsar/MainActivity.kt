@@ -1,12 +1,15 @@
 package com.example.bcsar
 
 import android.content.Context
+import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.widget.Button
 import android.widget.TextView
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
@@ -15,6 +18,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var mGyroscope: Sensor? = null
     private lateinit var mTextGyro: TextView
     private lateinit var mTextAccel: TextView
+    private var state = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,6 +28,18 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
         mTextGyro = findViewById(R.id.Test)
         mTextAccel = findViewById(R.id.Test2)
+
+        findViewById<Button>(R.id.buttonService).setOnClickListener {
+            if (state) {
+                Log.i("TAG", "START")
+                startService(Intent(this, SensorService::class.java))
+            }
+            else {
+                Log.i("TAG", "STOP")
+                stopService(Intent(this, SensorService::class.java))
+            }
+            state = !state
+        }
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
