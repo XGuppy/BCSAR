@@ -1,6 +1,7 @@
 package com.example.bcsar
 
 import android.app.Service
+import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
@@ -21,10 +22,10 @@ class SensorService: Service(), SensorEventListener {
 
     override fun onCreate() {
         super.onCreate()
+
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         mLinearAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
         mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-
         mSensorManager.registerListener(this, mLinearAcceleration, SensorManager.SENSOR_DELAY_NORMAL)
         mSensorManager.registerListener(this, mGyroscope, SensorManager.SENSOR_DELAY_NORMAL)
     }

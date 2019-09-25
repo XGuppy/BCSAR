@@ -1,8 +1,12 @@
 package com.example.bcsar
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -12,26 +16,66 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Button
-import android.widget.TextView
+import android.view.View
+import android.widget.*
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var mSensorManager: SensorManager
     private var mLinearAcceleration: Sensor? = null
     private var mGyroscope: Sensor? = null
-    private lateinit var mTextGyro: TextView
-    private lateinit var mTextAccel: TextView
     private var state = true
+    private var mapOfDevices: MutableMap<String, BluetoothDevice> = mutableMapOf()
+    private lateinit var listOfNameDevices: ArrayAdapter<String>
+    private var btAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val action: String? = intent.action
+            when(action) {
+                BluetoothDevice.ACTION_FOUND -> {
+                    val device: BluetoothDevice =
+                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                    mapOfDevices[device.name] = device
+                    listOfNameDevices.add(device.name)
+                }
+            }
+        }
+    }
 
+    @SuppressLint("ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         mLinearAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
         mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-        mTextGyro = findViewById(R.id.Test)
-        mTextAccel = findViewById(R.id.Test2)
+        listOfNameDevices = ArrayAdapter(this, R.id.choose_device)
+        if(btAdapter != null)
+        {
+            if (btAdapter?.isEnabled == false)
+            {
+                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                startActivityForResult(enableBtIntent, 1)
+            }
+            val pairedDevices: Set<BluetoothDevice>? = btAdapter?.bondedDevices
+            pairedDevices?.forEach { device ->
+                mapOfDevices[device.name] = device
+            }
 
+        }
+        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
+        registerReceiver(receiver, filter)
+        btAdapter?.startDiscovery()
+        findViewById<Spinner>(R.id.choose_device).onItemSelectedListener =  object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                btAdapter?.cancelDiscovery()
+
+            }
+
+        }
         findViewById<Button>(R.id.buttonService).setOnClickListener {
             if (state) {
                 Log.i("TAG", "START")
@@ -54,11 +98,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
         if(event.sensor.type == Sensor.TYPE_GYROSCOPE)
         {
-            mTextGyro.text = "${event.values[0]} ${event.values[1]} ${event.values[2]}"
         }
         else if(event.sensor.type == Sensor.TYPE_LINEAR_ACCELERATION)
         {
-            mTextAccel.text = "${event.values[0]} ${event.values[1]} ${event.values[2]}"
         }
     }
 
@@ -75,6 +117,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     override fun onPause() {
         super.onPause()
         mSensorManager.unregisterListener(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(receiver)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
