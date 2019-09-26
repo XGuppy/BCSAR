@@ -15,7 +15,7 @@ private class ConnectThread(device: BluetoothDevice): Thread()
     }
     private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
-    public override fun run() {
+    override fun run() {
 
         mmSocket?.use { socket ->
             // Connect to the remote device through the socket. This call blocks

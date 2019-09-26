@@ -2,11 +2,12 @@ package com.example.bcsar
 
 import android.bluetooth.BluetoothSocket
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.util.logging.Handler
+
 
 private const val TAG = "MY_APP_DEBUG_TAG"
 
