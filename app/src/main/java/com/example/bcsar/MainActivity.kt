@@ -21,7 +21,6 @@ import android.view.View
 import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import java.util.jar.Manifest
 
 class MainActivity : AppCompatActivity(), SensorEventListener {
     private val REQUEST_COARSE_LOCATION: Int = 135
@@ -47,10 +46,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
         }
     }
-
-    @SuppressLint("ResourceType")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    fun requestPermission()
+    {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
 
@@ -58,6 +55,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION),
                 REQUEST_COARSE_LOCATION)
         }
+    }
+    @SuppressLint("ResourceType")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        requestPermission()
         setContentView(R.layout.activity_main)
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         mLinearAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
@@ -172,7 +174,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 } else {
-                    //TODO re-request
+                    requestPermission()
                 }
             }
         }
