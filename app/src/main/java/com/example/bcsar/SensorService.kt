@@ -41,10 +41,10 @@ class SensorService: Service(), SensorEventListener {
         }
 
         if(event.sensor.type == Sensor.TYPE_GYROSCOPE) {
-            btSocket.outputStream.write("g:${event.values[0]}:{event.values[1]}:${event.values[2]}".encodeToByteArray())
+            btSocket.outputStream.write("g:${event.values[0]}:${event.values[1]}:${event.values[2]}".encodeToByteArray())
         }
         else if(event.sensor.type == Sensor.TYPE_LINEAR_ACCELERATION) {
-            btSocket.outputStream.write("a:${event.values[0]}:{event.values[1]}:${event.values[2]}".encodeToByteArray())
+            btSocket.outputStream.write("a:${event.values[0]}:${event.values[1]}:${event.values[2]}".encodeToByteArray())
         }
     }
 
