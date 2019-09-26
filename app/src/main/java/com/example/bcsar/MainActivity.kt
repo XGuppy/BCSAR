@@ -92,15 +92,18 @@ class MainActivity : AppCompatActivity() {
         }
         button = findViewById(R.id.buttonService)
         button.setOnClickListener {
-            val dev = mapOfDevices[spin.selectedItem.toString()]
-            while (dev?.bondState != BluetoothDevice.BOND_BONDED)
-            {
-                dev?.createBond()
-            }
+
             if (state) {
+                spin.isEnabled = false
+                val dev = mapOfDevices[spin.selectedItem.toString()]
+                while (dev?.bondState != BluetoothDevice.BOND_BONDED)
+                {
+                    dev?.createBond()
+                }
                 startService(Intent(this, SensorService::class.java).putExtra("device", mapOfDevices[spin.selectedItem.toString()]))
             }
             else {
+                spin.isEnabled = true
                 stopService(Intent(this, SensorService::class.java))
             }
             state = !state
