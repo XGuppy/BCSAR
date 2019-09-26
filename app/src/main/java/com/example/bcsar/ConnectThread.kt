@@ -16,8 +16,6 @@ private class ConnectThread(device: BluetoothDevice): Thread()
     private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
     public override fun run() {
-        // Cancel discovery because it otherwise slows down the connection.
-        bluetoothAdapter?.cancelDiscovery()
 
         mmSocket?.use { socket ->
             // Connect to the remote device through the socket. This call blocks
@@ -26,6 +24,7 @@ private class ConnectThread(device: BluetoothDevice): Thread()
 
             // The connection attempt succeeded. Perform work associated with
             // the connection in a separate thread.
+
         }
     }
 

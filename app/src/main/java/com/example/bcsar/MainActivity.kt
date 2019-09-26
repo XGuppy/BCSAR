@@ -29,10 +29,8 @@ class MainActivity : AppCompatActivity() {
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val action: String? = intent.action
-            Log.i("TAG", listOfNameDevices.count.toString())
             when(action) {
                 BluetoothDevice.ACTION_FOUND -> {
-                    Log.i("ACTION", listOfNameDevices.count.toString())
                     val device: BluetoothDevice =
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                     mapOfDevices[device.name] = device
@@ -94,12 +92,15 @@ class MainActivity : AppCompatActivity() {
         }
         button = findViewById(R.id.buttonService)
         button.setOnClickListener {
+            val dev = mapOfDevices[spin.selectedItem.toString()]
+            while (dev?.bondState != BluetoothDevice.BOND_BONDED)
+            {
+                dev?.createBond()
+            }
             if (state) {
-                Log.i("TAG", "START")
-                startService(Intent(this, SensorService::class.java))
+                startService(Intent(this, SensorService::class.java).putExtra("device", mapOfDevices[spin.selectedItem.toString()]))
             }
             else {
-                Log.i("TAG", "STOP")
                 stopService(Intent(this, SensorService::class.java))
             }
             state = !state

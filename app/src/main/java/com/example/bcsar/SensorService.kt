@@ -1,7 +1,7 @@
 package com.example.bcsar
 
 import android.app.Service
-import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
@@ -19,10 +19,9 @@ class SensorService: Service(), SensorEventListener {
     private lateinit var mSensorManager: SensorManager
     private var mLinearAcceleration: Sensor? = null
     private var mGyroscope: Sensor? = null
-
+    private var btDevice: BluetoothDevice? = null
     override fun onCreate() {
         super.onCreate()
-
         mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         mLinearAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
         mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
@@ -46,9 +45,13 @@ class SensorService: Service(), SensorEventListener {
         }
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        btDevice = intent?.extras?.get("device") as BluetoothDevice
+        return super.onStartCommand(intent, flags, startId)
+    }
+
     override fun onDestroy() {
         mSensorManager.unregisterListener(this)
         super.onDestroy()
-        Log.i("TAG", "Service destroyed")
     }
 }
