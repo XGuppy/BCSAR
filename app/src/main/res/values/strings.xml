@@ -15,4 +15,5 @@
     <string name="inversY_message">Инверсия по оси Y</string>
     <string name="mode_message">Режим работы</string>
     <string name="start_and_stop">Start and Stop</string>
+    <string name="select_device">Select device</string>
 </resources>

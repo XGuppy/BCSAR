@@ -8,25 +8,20 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.Spinner
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
-class MainActivity : AppCompatActivity(), SensorEventListener {
-    private val REQUEST_COARSE_LOCATION: Int = 135
-    private lateinit var mSensorManager: SensorManager
-    private var mLinearAcceleration: Sensor? = null
-    private var mGyroscope: Sensor? = null
+class MainActivity : AppCompatActivity() {
     private var state = true
     private var mapOfDevices: MutableMap<String, BluetoothDevice> = mutableMapOf()
     private lateinit var listOfNameDevices: ArrayAdapter<String>
@@ -46,14 +41,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
         }
     }
-    fun requestPermission()
+    private lateinit var button: Button
+
+    private fun requestPermission()
     {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(this,
                 arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION),
-                REQUEST_COARSE_LOCATION)
+                REQUEST_COARSE_LOCATION
+            )
         }
     }
     @SuppressLint("ResourceType")
@@ -61,9 +59,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         super.onCreate(savedInstanceState)
         requestPermission()
         setContentView(R.layout.activity_main)
-        mSensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        mLinearAcceleration = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
-        mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
         listOfNameDevices = ArrayAdapter(this, android.R.layout.simple_spinner_item)
         listOfNameDevices.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         val spin = findViewById<Spinner>(R.id.choose_device)
@@ -89,16 +84,16 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                button.isEnabled = true
                 if(btAdapter!!.isDiscovering)
                 {
                     btAdapter?.cancelDiscovery()
                 }
-
-
             }
 
         }
-        findViewById<Button>(R.id.buttonService).setOnClickListener {
+        button = findViewById(R.id.buttonService)
+        button.setOnClickListener {
             if (state) {
                 Log.i("TAG", "START")
                 startService(Intent(this, SensorService::class.java))
@@ -109,25 +104,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             }
             state = !state
         }
-    }
+        button.isEnabled = false
 
-    @SuppressLint("SetTextI18n")
-    override fun onSensorChanged(event: SensorEvent?) {
-        if(event == null)
-        {
-            return
-        }
-
-        if(event.sensor.type == Sensor.TYPE_GYROSCOPE)
-        {
-        }
-        else if(event.sensor.type == Sensor.TYPE_LINEAR_ACCELERATION)
-        {
-        }
-    }
-
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        // Empty
     }
 
     override fun onResume() {
@@ -136,15 +114,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
         val filter = IntentFilter()
         filter.addAction(BluetoothDevice.ACTION_FOUND)
         registerReceiver(receiver, filter)
-        mSensorManager.registerListener(this, mLinearAcceleration, SensorManager.SENSOR_DELAY_NORMAL)
-        mSensorManager.registerListener(this, mGyroscope, SensorManager.SENSOR_DELAY_NORMAL)
         btAdapter?.startDiscovery()
     }
 
     override fun onPause() {
         super.onPause()
         unregisterReceiver(receiver)
-        mSensorManager.unregisterListener(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -178,5 +153,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
                 }
             }
         }
+    }
+
+    companion object {
+        private const val REQUEST_COARSE_LOCATION: Int = 135
     }
 }
