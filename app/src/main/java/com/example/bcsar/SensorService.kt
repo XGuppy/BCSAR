@@ -11,6 +11,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.IBinder
 import android.util.Log
+import java.nio.ByteBuffer
 import java.util.*
 
 class SensorService: Service(), SensorEventListener {
@@ -34,16 +35,35 @@ class SensorService: Service(), SensorEventListener {
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
     }
 
+    private fun getSerializedData(mainByte: Byte, values: FloatArray): ByteArray
+    {
+        val dataLength = 13
+        val arr = ByteArray(dataLength)
+        arr[0] = mainByte
+
+        var counter = 1
+        for (value in values)
+        {
+            val tmp = ByteBuffer.allocate(4).putFloat(value).array()
+            for (byte in tmp)
+            {
+                arr[counter] = byte
+                ++counter
+            }
+        }
+        return arr
+    }
+
     override fun onSensorChanged(event: SensorEvent?) {
         if(event == null) {
             return
         }
 
         if(event.sensor.type == Sensor.TYPE_GYROSCOPE) {
-            btSocket.outputStream.write("g:${event.values[0]}:${event.values[1]}:${event.values[2]}".toByteArray())
+            btSocket.outputStream.write(getSerializedData('g'.toByte(), event.values))
         }
         else if(event.sensor.type == Sensor.TYPE_LINEAR_ACCELERATION) {
-            btSocket.outputStream.write("a:${event.values[0]}:${event.values[1]}:${event.values[2]}".toByteArray())
+            btSocket.outputStream.write(getSerializedData('a'.toByte(), event.values))
         }
     }
 
