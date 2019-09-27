@@ -34,23 +34,21 @@ class SensorService: Service(), SensorEventListener {
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
     }
 
-    @ExperimentalStdlibApi
     override fun onSensorChanged(event: SensorEvent?) {
         if(event == null) {
             return
         }
 
         if(event.sensor.type == Sensor.TYPE_GYROSCOPE) {
-            btSocket.outputStream.write("g:${event.values[0]}:${event.values[1]}:${event.values[2]}".encodeToByteArray())
+            btSocket.outputStream.write("g:${event.values[0]}:${event.values[1]}:${event.values[2]}".toByteArray())
         }
         else if(event.sensor.type == Sensor.TYPE_LINEAR_ACCELERATION) {
-            btSocket.outputStream.write("a:${event.values[0]}:${event.values[1]}:${event.values[2]}".encodeToByteArray())
+            btSocket.outputStream.write("a:${event.values[0]}:${event.values[1]}:${event.values[2]}".toByteArray())
         }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        btSocket = (intent?.extras?.get("device") as BluetoothDevice).createInsecureRfcommSocketToServiceRecord(
-            UUID.randomUUID())
+        btSocket = (intent?.extras?.get("device") as BluetoothDevice).createInsecureRfcommSocketToServiceRecord(UUID.fromString("4d89187e-476a-11e9-b210-d663bd873d93"))
         btSocket.connect()
         return super.onStartCommand(intent, flags, startId)
     }
