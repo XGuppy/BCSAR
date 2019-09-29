@@ -76,7 +76,7 @@ class SensorService: Service(), SensorEventListener {
             }
             if(inversY)
             {
-                event.values[1] = -event.values[0]
+                event.values[1] = -event.values[1]
             }
             btSocket.outputStream.write(getSerializedData('a'.toByte(), event.values))
         }
