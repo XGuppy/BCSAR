@@ -3,10 +3,7 @@ package com.example.bcsar
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -20,12 +17,15 @@ import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.preference.PreferenceManager
 
 class MainActivity : AppCompatActivity() {
     private var state = true
     private var mapOfDevices: MutableMap<String, BluetoothDevice> = mutableMapOf()
     private lateinit var listOfNameDevices: ArrayAdapter<String>
     private var btAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
+    private lateinit var spinChooseDevice: Spinner
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val action: String? = intent.action
@@ -39,7 +39,18 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private lateinit var button: Button
+    private  val localReceiver = LocalBroadcastManager.getInstance(this).registerReceiver(object: BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val connectData = intent.getStringExtra("connect")
+            if(connectData == "break")
+            {
+                buttonStartService.isEnabled = false
+                spinChooseDevice.isEnabled = true
+                stopService(Intent(this@MainActivity, SensorService::class.java))
+            }
+        }
+    }, IntentFilter("serviceEvent"))
+    private lateinit var buttonStartService: Button
 
     private fun requestPermission()
     {
@@ -59,8 +70,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         listOfNameDevices = ArrayAdapter(this, android.R.layout.simple_spinner_item)
         listOfNameDevices.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        val spin = findViewById<Spinner>(R.id.choose_device)
-        spin.adapter = listOfNameDevices
+        spinChooseDevice = findViewById(R.id.choose_device)
+        spinChooseDevice.adapter = listOfNameDevices
         if(btAdapter != null)
         {
             if (btAdapter?.isEnabled == false)
@@ -76,13 +87,13 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        spin.onItemSelectedListener =  object : AdapterView.OnItemSelectedListener {
+        spinChooseDevice.onItemSelectedListener =  object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
 
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                button.isEnabled = true
+                buttonStartService.isEnabled = true
                 if(btAdapter!!.isDiscovering)
                 {
                     btAdapter?.cancelDiscovery()
@@ -90,25 +101,31 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
-        button = findViewById(R.id.buttonService)
-        button.setOnClickListener {
+        buttonStartService = findViewById(R.id.buttonService)
+        buttonStartService.setOnClickListener {
 
             if (state) {
-                spin.isEnabled = false
-                val dev = mapOfDevices[spin.selectedItem.toString()]
+                spinChooseDevice.isEnabled = false
+                val dev = mapOfDevices[spinChooseDevice.selectedItem.toString()]
                 while (dev?.bondState != BluetoothDevice.BOND_BONDED)
                 {
                     dev?.createBond()
                 }
-                startService(Intent(this, SensorService::class.java).putExtra("device", mapOfDevices[spin.selectedItem.toString()]))
+                val sp  = PreferenceManager.getDefaultSharedPreferences(this)
+                startService(Intent(this, SensorService::class.java)
+                    .putExtra("device", mapOfDevices[spinChooseDevice.selectedItem.toString()])
+                    .putExtra("inversX", sp.getBoolean("inversX", false))
+                    .putExtra("inversY", sp.getBoolean("inversY", false))
+                    .putExtra("mode", sp.getInt("modes", 0)))
+
             }
             else {
-                spin.isEnabled = true
+                spinChooseDevice.isEnabled = true
                 stopService(Intent(this, SensorService::class.java))
             }
             state = !state
         }
-        button.isEnabled = false
+        buttonStartService.isEnabled = false
 
     }
 
