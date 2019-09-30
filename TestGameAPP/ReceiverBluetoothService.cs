@@ -91,8 +91,9 @@ namespace TestGameAPP
                             };
                             for (int i = 0; i < 3; i++)
                             {
-                                Array.Reverse(br.ReadBytes(4));
-                                sensorData.Data[i] = BitConverter.ToSingle(br.ReadBytes(4), 0);
+                                var bytes = br.ReadBytes(4);
+                                Array.Reverse(bytes);
+                                sensorData.Data[i] = BitConverter.ToSingle(bytes, 0);
                             }
                             _responseAction(sensorData);
                         }
