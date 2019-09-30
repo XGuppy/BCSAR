@@ -10,10 +10,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.Spinner
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -26,19 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listOfNameDevices: ArrayAdapter<String>
     private var btAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     private lateinit var spinChooseDevice: Spinner
-    private val receiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val action: String? = intent.action
-            when(action) {
-                BluetoothDevice.ACTION_FOUND -> {
-                    val device: BluetoothDevice =
-                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-                    mapOfDevices[device.name] = device
-                    listOfNameDevices.add(device.name)
-                }
-            }
-        }
-    }
+    private lateinit var receiver: BroadcastReceiver
     private lateinit var localReceiver: Unit
     private lateinit var buttonStartService: Button
 
@@ -57,17 +42,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestPermission()
-        localReceiver = LocalBroadcastManager.getInstance(this).registerReceiver(object: BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                val connectData = intent.getStringExtra("connect")
-                if(connectData == "break")
-                {
-                    buttonStartService.isEnabled = false
-                    spinChooseDevice.isEnabled = true
-                    stopService(Intent(this@MainActivity, SensorService::class.java))
-                }
-            }
-        }, IntentFilter("serviceEvent"))
+
         setContentView(R.layout.activity_main)
         listOfNameDevices = ArrayAdapter(this, android.R.layout.simple_spinner_item)
         listOfNameDevices.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -127,6 +102,32 @@ class MainActivity : AppCompatActivity() {
             state = !state
         }
         buttonStartService.isEnabled = false
+
+        //Receiver Section
+        localReceiver = LocalBroadcastManager.getInstance(this).registerReceiver(object: BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                val connectData = intent.getStringExtra("connect")
+                if(connectData == "break")
+                {
+                    spinChooseDevice.isEnabled = true
+                    Toast.makeText(this@MainActivity, "Подключение разорвано удалённым хостом", Toast.LENGTH_SHORT).show()
+                    stopService(Intent(this@MainActivity, SensorService::class.java))
+                }
+            }
+        }, IntentFilter("serviceEvent"))
+        receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                val action: String? = intent.action
+                when(action) {
+                    BluetoothDevice.ACTION_FOUND -> {
+                        val device: BluetoothDevice =
+                            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                        mapOfDevices[device.name] = device
+                        listOfNameDevices.add(device.name)
+                    }
+                }
+            }
+        }
 
     }
 

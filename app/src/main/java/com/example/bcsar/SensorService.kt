@@ -12,6 +12,7 @@ import android.hardware.SensorManager
 import android.os.IBinder
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import java.lang.Exception
 import java.nio.ByteBuffer
 import java.util.*
 
@@ -60,26 +61,29 @@ class SensorService: Service(), SensorEventListener {
         if(event == null) {
             return
         }
-        if(!btSocket.isConnected)
+        try {
+            if(event.sensor.type == Sensor.TYPE_GYROSCOPE) {
+                btSocket.outputStream.write(getSerializedData('g'.toByte(), event.values))
+            }
+            else if(event.sensor.type == Sensor.TYPE_LINEAR_ACCELERATION) {
+                if(inversX)
+                {
+                    event.values[0] = -event.values[0]
+                }
+                if(inversY)
+                {
+                    event.values[1] = -event.values[1]
+                }
+                btSocket.outputStream.write(getSerializedData('a'.toByte(), event.values))
+            }
+        }
+        catch (e: Exception)
         {
             val intent = Intent("serviceEvent")
             intent.putExtra("connect", "break")
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
         }
-        if(event.sensor.type == Sensor.TYPE_GYROSCOPE) {
-            btSocket.outputStream.write(getSerializedData('g'.toByte(), event.values))
-        }
-        else if(event.sensor.type == Sensor.TYPE_LINEAR_ACCELERATION) {
-            if(inversX)
-            {
-                event.values[0] = -event.values[0]
-            }
-            if(inversY)
-            {
-                event.values[1] = -event.values[1]
-            }
-            btSocket.outputStream.write(getSerializedData('a'.toByte(), event.values))
-        }
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
