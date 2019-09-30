@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
                     .putExtra("device", mapOfDevices[spinChooseDevice.selectedItem.toString()])
                     .putExtra("inversX", sp.getBoolean("inversX", false))
                     .putExtra("inversY", sp.getBoolean("inversY", false))
-                    .putExtra("mode", sp.getInt("modes", 0)))
+                    .putExtra("mode", sp.getString("modes", "1")?.toInt()))
 
             }
             else {

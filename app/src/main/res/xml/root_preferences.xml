@@ -3,7 +3,7 @@
     <PreferenceCategory app:title="@string/mode_header">
 
         <ListPreference
-            app:defaultValue="Нормальный"
+            app:defaultValue= "1"
             app:entries="@array/modeEntries"
             app:entryValues="@array/modes"
             app:key="modes"
