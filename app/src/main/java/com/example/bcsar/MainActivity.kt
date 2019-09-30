@@ -107,10 +107,11 @@ class MainActivity : AppCompatActivity() {
         localReceiver = LocalBroadcastManager.getInstance(this).registerReceiver(object: BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 val connectData = intent.getStringExtra("connect")
+                val msg = intent.getStringExtra("msg")
                 if(connectData == "break")
                 {
                     spinChooseDevice.isEnabled = true
-                    Toast.makeText(this@MainActivity, "Подключение разорвано удалённым хостом", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, msg, Toast.LENGTH_SHORT).show()
                     stopService(Intent(this@MainActivity, SensorService::class.java))
                 }
             }

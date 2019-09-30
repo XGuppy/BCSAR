@@ -81,6 +81,7 @@ class SensorService: Service(), SensorEventListener {
         {
             val intent = Intent("serviceEvent")
             intent.putExtra("connect", "break")
+            intent.putExtra("msg", "Подключение разорвано удалённым хостом")
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
         }
 
@@ -92,7 +93,17 @@ class SensorService: Service(), SensorEventListener {
         inversY = intentExtra?.getBoolean("inversY")
         Mode = intentExtra?.getInt("Mode")
         btSocket = (intentExtra?.get("device") as BluetoothDevice).createInsecureRfcommSocketToServiceRecord(UUID.fromString("4d89187e-476a-11e9-b210-d663bd873d93"))
-        btSocket.connect()
+        try
+        {
+            btSocket.connect()
+        }
+        catch (e: Exception)
+        {
+            val intent = Intent("serviceEvent")
+            intent.putExtra("connect", "break")
+            intent.putExtra("msg", "Удалённый хост не ответил")
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+        }
         mSensorManager.registerListener(this, mLinearAcceleration, Mode)
         mSensorManager.registerListener(this, mGyroscope, Mode)
         return super.onStartCommand(intent, flags, startId)
