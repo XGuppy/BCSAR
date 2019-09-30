@@ -85,11 +85,14 @@ namespace TestGameAPP
                         try
                         {
                             var br = new BinaryReader(client.GetStream());
-                            SensorData sensorData = new SensorData();
-                            sensorData.Type = (char)br.ReadByte();
+                            SensorData sensorData = new SensorData
+                            {
+                                Type = (char)br.ReadByte()
+                            };
                             for (int i = 0; i < 3; i++)
                             {
-                                sensorData.Data[i] = br.ReadSingle();
+                                Array.Reverse(br.ReadBytes(4));
+                                sensorData.Data[i] = BitConverter.ToSingle(br.ReadBytes(4), 0);
                             }
                             _responseAction(sensorData);
                         }

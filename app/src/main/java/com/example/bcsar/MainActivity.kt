@@ -39,17 +39,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private  val localReceiver = LocalBroadcastManager.getInstance(this).registerReceiver(object: BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val connectData = intent.getStringExtra("connect")
-            if(connectData == "break")
-            {
-                buttonStartService.isEnabled = false
-                spinChooseDevice.isEnabled = true
-                stopService(Intent(this@MainActivity, SensorService::class.java))
-            }
-        }
-    }, IntentFilter("serviceEvent"))
+    private lateinit var localReceiver: Unit
     private lateinit var buttonStartService: Button
 
     private fun requestPermission()
@@ -67,6 +57,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestPermission()
+        localReceiver = LocalBroadcastManager.getInstance(this).registerReceiver(object: BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                val connectData = intent.getStringExtra("connect")
+                if(connectData == "break")
+                {
+                    buttonStartService.isEnabled = false
+                    spinChooseDevice.isEnabled = true
+                    stopService(Intent(this@MainActivity, SensorService::class.java))
+                }
+            }
+        }, IntentFilter("serviceEvent"))
         setContentView(R.layout.activity_main)
         listOfNameDevices = ArrayAdapter(this, android.R.layout.simple_spinner_item)
         listOfNameDevices.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
