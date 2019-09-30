@@ -114,6 +114,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this@MainActivity, msg, Toast.LENGTH_SHORT).show()
                     stopService(Intent(this@MainActivity, SensorService::class.java))
                 }
+                state = !state
             }
         }, IntentFilter("serviceEvent"))
         receiver = object : BroadcastReceiver() {
