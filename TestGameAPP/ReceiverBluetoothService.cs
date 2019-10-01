@@ -1,9 +1,8 @@
-﻿using System;
+﻿using InTheHand.Net.Sockets;
+using System;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
-using InTheHand.Net.Sockets;
 
 namespace TestGameAPP
 {
@@ -13,7 +12,6 @@ namespace TestGameAPP
         private Action<SensorData> _responseAction;
         private BluetoothListener _listener;
         private CancellationTokenSource _cancelSource;
-        private static readonly BinaryFormatter Formatter = new BinaryFormatter();
         /// <summary>  
         /// Initializes a new instance of the <see cref="ReceiverBluetoothService" /> class.  
         /// </summary>  
@@ -76,34 +74,33 @@ namespace TestGameAPP
             {
                 while (true)
                 {
-                    
-                        if (token.IsCancellationRequested)
+
+                    if (token.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    try
+                    {
+                        var br = new BinaryReader(client.GetStream());
+                        SensorData sensorData = new SensorData
                         {
-                            return;
-                        }
-    
-                        try
+                            Type = (char)br.ReadByte()
+                        };
+                        for (int i = 0; i < 3; i++)
                         {
-                            var br = new BinaryReader(client.GetStream());
-                            SensorData sensorData = new SensorData
-                            {
-                                Type = (char)br.ReadByte()
-                            };
-                            for (int i = 0; i < 3; i++)
-                            {
-                                var bytes = br.ReadBytes(4);
-                                Array.Reverse(bytes);
-                                sensorData.Data[i] = BitConverter.ToSingle(bytes, 0);
-                            }
-                            _responseAction(sensorData);
+                            var bytes = br.ReadBytes(4);
+                            Array.Reverse(bytes);
+                            sensorData.Data[i] = BitConverter.ToSingle(bytes, 0);
                         }
-                        catch (IOException)
-                        {
-                            client.Close();
-                            break;
-                        }
+                        _responseAction(sensorData);
+                    }
+                    catch (IOException)
+                    {
+                        client.Close();
+                        break;
                     }
                 }
+            }
         }
 
         /// <summary>  
