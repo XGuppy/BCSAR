@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
                     .putExtra("inversX", sp.getBoolean("inversX", false))
                     .putExtra("inversY", sp.getBoolean("inversY", false))
                     .putExtra("mode", sp.getString("modes", "1")?.toInt()))
-
+                Log.d("TAG", "Sensor started with params device = ${mapOfDevices[spinChooseDevice.selectedItem.toString()]}, iX = ${sp.getBoolean("inversX", false)}, iY = ${sp.getBoolean("inversY", false)}, mode = ${sp.getString("modes", "1")?.toInt()}")
             }
             else {
                 spinChooseDevice.isEnabled = true
@@ -119,13 +119,14 @@ class MainActivity : AppCompatActivity() {
         }, IntentFilter("serviceEvent"))
         receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                val action: String? = intent.action
-                when(action) {
+                when(intent.action) {
                     BluetoothDevice.ACTION_FOUND -> {
                         val device: BluetoothDevice =
                             intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-                        mapOfDevices[device.name] = device
-                        listOfNameDevices.add(device.name)
+                        if (device.name != null) {
+                            mapOfDevices[device.name] = device
+                            listOfNameDevices.add(device.name)
+                        }
                     }
                 }
             }

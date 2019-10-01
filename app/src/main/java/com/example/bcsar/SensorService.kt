@@ -62,6 +62,7 @@ class SensorService: Service(), SensorEventListener {
             return
         }
         try {
+            Log.d("TAG", "sensor changed, sending...")
             if(event.sensor.type == Sensor.TYPE_GYROSCOPE) {
                 btSocket.outputStream.write(getSerializedData('g'.toByte(), event.values))
             }
@@ -89,27 +90,29 @@ class SensorService: Service(), SensorEventListener {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val intentExtra = intent?.extras
-        inversX = intentExtra?.getBoolean("inversX")!!
-        inversY = intentExtra?.getBoolean("inversY")
-        Mode = intentExtra?.getInt("Mode")
-        btSocket = (intentExtra?.get("device") as BluetoothDevice).createInsecureRfcommSocketToServiceRecord(UUID.fromString("4d89187e-476a-11e9-b210-d663bd873d93"))
+        inversX = intentExtra!!.getBoolean("inversX")
+        inversY = intentExtra.getBoolean("inversY")
+        Mode = intentExtra.getInt("Mode")
+        btSocket = (intentExtra.get("device") as BluetoothDevice).createInsecureRfcommSocketToServiceRecord(UUID.fromString("4d89187e-476a-11e9-b210-d663bd873d93"))
         try
         {
             btSocket.connect()
         }
         catch (e: Exception)
         {
-            val intent = Intent("serviceEvent")
-            intent.putExtra("connect", "break")
-            intent.putExtra("msg", "Удалённый хост не ответил")
-            LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+            val serviceIntent = Intent("serviceEvent")
+            serviceIntent.putExtra("connect", "break")
+            serviceIntent.putExtra("msg", "Удалённый хост не ответил")
+            LocalBroadcastManager.getInstance(this).sendBroadcast(serviceIntent)
         }
         mSensorManager.registerListener(this, mLinearAcceleration, Mode)
         mSensorManager.registerListener(this, mGyroscope, Mode)
+        Log.d("TAG", "Service starts????")
         return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onDestroy() {
+        Log.d("TAG", "Service destroy")
         mSensorManager.unregisterListener(this)
         btSocket.close()
         super.onDestroy()
